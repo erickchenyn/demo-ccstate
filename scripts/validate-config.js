@@ -18,7 +18,9 @@ function validateConfigs() {
 
         // 读取 .prettierrc.json
         const prettierConfigPath = path.join(process.cwd(), '.prettierrc.json')
-        const prettierConfig = JSON.parse(fs.readFileSync(prettierConfigPath, 'utf8'))
+        const prettierConfig = JSON.parse(
+            fs.readFileSync(prettierConfigPath, 'utf8')
+        )
 
         // 验证一致性
         validateConsistency(editorConfig, prettierConfig, errors, warnings)
@@ -78,52 +80,77 @@ function parseEditorConfig(content) {
  */
 function validateConsistency(editorConfig, prettierConfig, errors, warnings) {
     // 检查缩进设置
-    if (editorConfig.indent_style === 'space' && prettierConfig.useTabs === true) {
+    if (
+        editorConfig.indent_style === 'space' &&
+        prettierConfig.useTabs === true
+    ) {
         errors.push('缩进冲突：EditorConfig 使用空格，Prettier 使用制表符')
     }
-    if (editorConfig.indent_style === 'tab' && prettierConfig.useTabs === false) {
+    if (
+        editorConfig.indent_style === 'tab' &&
+        prettierConfig.useTabs === false
+    ) {
         errors.push('缩进冲突：EditorConfig 使用制表符，Prettier 使用空格')
     }
 
     // 检查缩进大小
     const editorIndentSize = parseInt(editorConfig.indent_size)
     const prettierTabWidth = prettierConfig.tabWidth
-    if (editorIndentSize && prettierTabWidth && editorIndentSize !== prettierTabWidth) {
-        errors.push(`缩进大小冲突：EditorConfig=${editorIndentSize}，Prettier=${prettierTabWidth}`)
+    if (
+        editorIndentSize &&
+        prettierTabWidth &&
+        editorIndentSize !== prettierTabWidth
+    ) {
+        errors.push(
+            `缩进大小冲突：EditorConfig=${editorIndentSize}，Prettier=${prettierTabWidth}`
+        )
     }
 
     // 检查行宽
     const editorMaxLength = parseInt(editorConfig.max_line_length)
     const prettierPrintWidth = prettierConfig.printWidth
-    if (editorMaxLength && prettierPrintWidth && editorMaxLength !== prettierPrintWidth) {
-        errors.push(`行宽冲突：EditorConfig=${editorMaxLength}，Prettier=${prettierPrintWidth}`)
+    if (
+        editorMaxLength &&
+        prettierPrintWidth &&
+        editorMaxLength !== prettierPrintWidth
+    ) {
+        errors.push(
+            `行宽冲突：EditorConfig=${editorMaxLength}，Prettier=${prettierPrintWidth}`
+        )
     }
 
     // 检查换行符
     const editorEndOfLine = editorConfig.end_of_line
     const prettierEndOfLine = prettierConfig.endOfLine
     if (editorEndOfLine && prettierEndOfLine) {
-        const mapping = { 'lf': 'lf', 'crlf': 'crlf', 'cr': 'cr' }
+        const mapping = { lf: 'lf', crlf: 'crlf', cr: 'cr' }
         if (mapping[editorEndOfLine] !== prettierEndOfLine) {
-            errors.push(`换行符冲突：EditorConfig=${editorEndOfLine}，Prettier=${prettierEndOfLine}`)
+            errors.push(
+                `换行符冲突：EditorConfig=${editorEndOfLine}，Prettier=${prettierEndOfLine}`
+            )
         }
     }
 
     // 检查最终换行符
-    const editorInsertFinalNewline = editorConfig.insert_final_newline === 'true'
+    const editorInsertFinalNewline =
+        editorConfig.insert_final_newline === 'true'
     const prettierInsertFinalNewline = prettierConfig.insertFinalNewline
     if (editorInsertFinalNewline !== prettierInsertFinalNewline) {
         if (prettierInsertFinalNewline === undefined) {
             warnings.push('建议在 Prettier 中明确设置 insertFinalNewline')
         } else {
-            errors.push(`最终换行符冲突：EditorConfig=${editorInsertFinalNewline}，Prettier=${prettierInsertFinalNewline}`)
+            errors.push(
+                `最终换行符冲突：EditorConfig=${editorInsertFinalNewline}，Prettier=${prettierInsertFinalNewline}`
+            )
         }
     }
 
     // 检查去除行尾空格（Prettier 默认会去除，EditorConfig 应该保持一致）
     const editorTrimTrailing = editorConfig.trim_trailing_whitespace === 'true'
     if (!editorTrimTrailing) {
-        warnings.push('建议在 EditorConfig 中启用 trim_trailing_whitespace=true')
+        warnings.push(
+            '建议在 EditorConfig 中启用 trim_trailing_whitespace=true'
+        )
     }
 }
 
