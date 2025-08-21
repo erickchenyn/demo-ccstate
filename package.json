@@ -1,8 +1,31 @@
 {
   "dependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.6.2",
     "ccstate": "^5.0.0",
     "ccstate-react": "^5.0.0",
     "signal-timers": "^1.0.4",
     "signal-transaction": "^1.1.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "lefthook": "^1.5.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint src --ext .ts,.tsx,.js,.jsx --fix",
+    "type-check": "tsc --noEmit",
+    "validate-config": "node scripts/validate-config.js",
+    "precommit": "npm run validate-config && npm run format:check && npm run lint",
+    "prepare": "lefthook install",
+    "hooks:install": "lefthook install",
+    "hooks:uninstall": "lefthook uninstall"
   }
 }
