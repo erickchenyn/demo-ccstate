@@ -265,7 +265,7 @@
         "prefer-number-properties": "deny",
         "prefer-object-spread": "deny",
         "prefer-optional-catch-binding": "deny",
-        "prefer-promise-reject-errors": "deny",
+        "prefer-promise-reject-errors": "allow",
         "prefer-reflect-apply": "deny",
         "prefer-rest-params": "deny",
         "prefer-set-has": "deny",

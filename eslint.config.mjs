@@ -38,13 +38,18 @@ export default defineConfig([
             parser: tsParser,
             ecmaVersion: 'latest',
             sourceType: 'module',
+            parserOptions: {
+                project: './tsconfig.json',
+                tsconfigRootDir: __dirname,
+            },
         },
         rules: {
             'prettier/prettier': 'error',
+            'no-unused-vars': 'off',
         },
     },
     {
-        files: ['**/*.{ts|tsx}'],
+        files: ['**/*.{ts,tsx}'],
         extends: [
             ...configs.strictTypeChecked,
             ...configs.stylisticTypeChecked,
@@ -52,6 +57,7 @@ export default defineConfig([
         plugins: { 'case-police': casePolice },
         rules: {
             '@typescript-eslint/no-explicit-any': 'warn',
+            '@typescript-eslint/prefer-promise-reject-errors': 'off',
             '@typescript-eslint/no-unused-vars': [
                 'error',
                 {
