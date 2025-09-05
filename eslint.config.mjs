@@ -24,6 +24,9 @@ const compat = new FlatCompat({
 
 export default defineConfig([
     {
+        ignores: ['**/*.js', '*.config.*'],
+    },
+    {
         extends: compat.extends('eslint:recommended', 'prettier'),
         plugins: {
             '@typescript-eslint': typescriptEslint,
