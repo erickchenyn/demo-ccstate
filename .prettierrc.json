@@ -13,5 +13,14 @@
         "^react",
         "^@?\\w",
         "^[./]"
+    ],
+    "overrides": [
+        {
+            "files": "*.md",
+            "options": {
+                "tabWidth": 2,
+                "proseWrap": "preserve"
+            }
+        }
     ]
 }

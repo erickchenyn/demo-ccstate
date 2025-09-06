@@ -59,12 +59,12 @@ detach(handleClick(), Reason.DomCallback, 'Button click handler')
 
 ```typescript
 it('should handle async operations', () => {
-    const ctx = createTestContext()
+  const ctx = createTestContext()
 
-    // 使用 abort signal 控制异步操作
-    someAsyncOperation(ctx.signal)
+  // 使用 abort signal 控制异步操作
+  someAsyncOperation(ctx.signal)
 
-    // 测试结束时自动清理
+  // 测试结束时自动清理
 })
 ```
 
@@ -74,16 +74,16 @@ it('should handle async operations', () => {
 
 ```typescript
 afterEach(() => {
-    vi.restoreAllMocks() // 1. 恢复所有 mock 函数
+  vi.restoreAllMocks() // 1. 恢复所有 mock 函数
 })
 
 afterEach(() => {
-    return clearAllDetached() // 2. 等待并清理所有异步操作
+  return clearAllDetached() // 2. 等待并清理所有异步操作
 })
 
 // createTestContext 中的 afterEach
 afterEach(() => {
-    controller.abort(error) // 3. 中止测试上下文，发送 AbortSignal
+  controller.abort(error) // 3. 中止测试上下文，发送 AbortSignal
 })
 ```
 
@@ -100,12 +100,12 @@ afterEach(() => {
 ```typescript
 // 错误：没有监听 abort 信号
 it('should handle timeout', () => {
-    const ctx = createTestContext()
+  const ctx = createTestContext()
 
-    setTimeout(() => {
-        // 测试结束后仍在执行，可能访问已清理的资源
-        console.log('This runs after test ends') // 💥 可能导致测试间干扰
-    }, 100)
+  setTimeout(() => {
+    // 测试结束后仍在执行，可能访问已清理的资源
+    console.log('This runs after test ends') // 💥 可能导致测试间干扰
+  }, 100)
 })
 ```
 
@@ -114,27 +114,27 @@ it('should handle timeout', () => {
 ```typescript
 // 正确：监听并响应中止信号
 it('should handle timeout correctly', async () => {
-    const ctx = createTestContext()
+  const ctx = createTestContext()
 
-    const abortableTimeout = () => {
-        return new Promise((resolve, reject) => {
-            const timeoutId = setTimeout(() => resolve('done'), 100)
+  const abortableTimeout = () => {
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(() => resolve('done'), 100)
 
-            ctx.signal.addEventListener('abort', () => {
-                clearTimeout(timeoutId)
-                reject(ctx.signal.reason)
-            })
-        })
+      ctx.signal.addEventListener('abort', () => {
+        clearTimeout(timeoutId)
+        reject(ctx.signal.reason)
+      })
+    })
+  }
+
+  try {
+    await abortableTimeout()
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      return // 正常的测试结束
     }
-
-    try {
-        await abortableTimeout()
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            return // 正常的测试结束
-        }
-        throw error
-    }
+    throw error
+  }
 })
 ```
 
@@ -143,16 +143,16 @@ it('should handle timeout correctly', async () => {
 ```typescript
 // 错误：Promise 不响应中止信号
 it('should fetch data', () => {
-    const ctx = createTestContext()
+  const ctx = createTestContext()
 
-    const fetchData = () => {
-        return new Promise(resolve => {
-            // 没有监听 abort 事件，测试结束后仍在运行
-            setTimeout(() => resolve('data'), 1000)
-        })
-    }
+  const fetchData = () => {
+    return new Promise(resolve => {
+      // 没有监听 abort 事件，测试结束后仍在运行
+      setTimeout(() => resolve('data'), 1000)
+    })
+  }
 
-    fetchData() // 💥 可能导致测试挂起或下个测试失败
+  fetchData() // 💥 可能导致测试挂起或下个测试失败
 })
 ```
 
@@ -161,28 +161,28 @@ it('should fetch data', () => {
 ```typescript
 // 正确：创建可中止的 Promise
 it('should fetch data with abort support', async () => {
-    const ctx = createTestContext()
+  const ctx = createTestContext()
 
-    const fetchData = (signal: AbortSignal) => {
-        return new Promise((resolve, reject) => {
-            const timeoutId = setTimeout(() => resolve('data'), 1000)
+  const fetchData = (signal: AbortSignal) => {
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(() => resolve('data'), 1000)
 
-            signal.addEventListener('abort', () => {
-                clearTimeout(timeoutId)
-                reject(signal.reason)
-            })
-        })
+      signal.addEventListener('abort', () => {
+        clearTimeout(timeoutId)
+        reject(signal.reason)
+      })
+    })
+  }
+
+  try {
+    const result = await fetchData(ctx.signal)
+    expect(result).toBe('data')
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      return // 测试被正常中止
     }
-
-    try {
-        const result = await fetchData(ctx.signal)
-        expect(result).toBe('data')
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            return // 测试被正常中止
-        }
-        throw error
-    }
+    throw error
+  }
 })
 ```
 
@@ -191,13 +191,13 @@ it('should fetch data with abort support', async () => {
 ```typescript
 // 错误：添加事件监听器但不清理
 it('should handle DOM events', () => {
-    const ctx = createTestContext()
-    const button = document.createElement('button')
+  const ctx = createTestContext()
+  const button = document.createElement('button')
 
-    // 添加事件监听器但没有清理机制
-    button.addEventListener('click', () => {
-        console.log('Button clicked') // 💥 测试结束后可能仍被调用
-    })
+  // 添加事件监听器但没有清理机制
+  button.addEventListener('click', () => {
+    console.log('Button clicked') // 💥 测试结束后可能仍被调用
+  })
 })
 ```
 
@@ -206,25 +206,25 @@ it('should handle DOM events', () => {
 ```typescript
 // 正确：使用 AbortSignal 自动清理事件监听器
 it('should handle DOM events with cleanup', () => {
-    const ctx = createTestContext()
-    const button = document.createElement('button')
+  const ctx = createTestContext()
+  const button = document.createElement('button')
 
-    // 使用 AbortSignal 自动清理事件监听器
-    button.addEventListener(
-        'click',
-        () => {
-            console.log('Button clicked')
-        },
-        { signal: ctx.signal }
-    )
+  // 使用 AbortSignal 自动清理事件监听器
+  button.addEventListener(
+    'click',
+    () => {
+      console.log('Button clicked')
+    },
+    { signal: ctx.signal }
+  )
 
-    // 或手动清理
-    const handleClick = () => console.log('Button clicked')
-    button.addEventListener('click', handleClick)
+  // 或手动清理
+  const handleClick = () => console.log('Button clicked')
+  button.addEventListener('click', handleClick)
 
-    ctx.signal.addEventListener('abort', () => {
-        button.removeEventListener('click', handleClick)
-    })
+  ctx.signal.addEventListener('abort', () => {
+    button.removeEventListener('click', handleClick)
+  })
 })
 ```
 
@@ -233,10 +233,10 @@ it('should handle DOM events with cleanup', () => {
 ```typescript
 // 错误：没有使用 detach 标记异步操作
 it('should handle background task', () => {
-    const ctx = createTestContext()
+  const ctx = createTestContext()
 
-    // 启动后台任务但没有用 detach 标记
-    backgroundTask() // 💥 可能在测试间泄露
+  // 启动后台任务但没有用 detach 标记
+  backgroundTask() // 💥 可能在测试间泄露
 })
 ```
 
@@ -245,18 +245,18 @@ it('should handle background task', () => {
 ```typescript
 // 正确：使用 detach 标记和管理异步操作
 it('should handle background task with detach', () => {
-    const ctx = createTestContext()
+  const ctx = createTestContext()
 
-    const task = async () => {
-        // 响应中止信号的后台任务
-        while (!ctx.signal.aborted) {
-            await doSomeWork()
-            await new Promise(resolve => setTimeout(resolve, 100))
-        }
+  const task = async () => {
+    // 响应中止信号的后台任务
+    while (!ctx.signal.aborted) {
+      await doSomeWork()
+      await new Promise(resolve => setTimeout(resolve, 100))
     }
+  }
 
-    // 标记为分离的异步操作
-    detach(task(), Reason.Daemon, 'Background processing task')
+  // 标记为分离的异步操作
+  detach(task(), Reason.Daemon, 'Background processing task')
 })
 ```
 
@@ -266,8 +266,8 @@ it('should handle background task with detach', () => {
 
 ```typescript
 it('test name', () => {
-    const ctx = createTestContext() // 必须
-    // 使用 ctx.signal 控制异步操作
+  const ctx = createTestContext() // 必须
+  // 使用 ctx.signal 控制异步操作
 })
 ```
 
@@ -275,13 +275,13 @@ it('test name', () => {
 
 ```typescript
 const abortableOperation = (signal: AbortSignal) => {
-    return new Promise((resolve, reject) => {
-        // 业务逻辑
-        signal.addEventListener('abort', () => {
-            // 清理资源并拒绝 Promise
-            reject(signal.reason)
-        })
+  return new Promise((resolve, reject) => {
+    // 业务逻辑
+    signal.addEventListener('abort', () => {
+      // 清理资源并拒绝 Promise
+      reject(signal.reason)
     })
+  })
 }
 ```
 
@@ -295,12 +295,12 @@ detach(longRunningTask(), Reason.Daemon, 'Task description')
 
 ```typescript
 try {
-    await abortableOperation(ctx.signal)
+  await abortableOperation(ctx.signal)
 } catch (error) {
-    if (error.name === 'AbortError') {
-        return // 正常的测试结束
-    }
-    throw error // 重新抛出其他错误
+  if (error.name === 'AbortError') {
+    return // 正常的测试结束
+  }
+  throw error // 重新抛出其他错误
 }
 ```
 
@@ -330,8 +330,8 @@ Clear all detached promises
 
 ```typescript
 ctx.signal.addEventListener('abort', () => {
-    console.debug('Operation aborted:', operation.name)
-    cleanup()
+  console.debug('Operation aborted:', operation.name)
+  cleanup()
 })
 ```
 
