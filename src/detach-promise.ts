@@ -3,18 +3,18 @@ import { IN_VITEST } from './env'
 
 export enum Reason {
     /**
-     * Daemon 意味着这个 Promise 是一个永不 resolve 的后台任务，如协同的长连接通道
+     * Daemon represents a background task Promise that never resolves, such as collaborative long-lived connection channels
      */
     Daemon = 'daemon',
 
     /**
-     * 作为 DOM Event Callback 的 async function 返回的 promise 对 DOM 来说没有意义，如 onScroll, onClick 等事件回调
-     * React 的渲染完成也会被认为是一个 DOM Event，因此在 onRef 中也会用到
+     * Promises returned by async functions used as DOM Event Callbacks are meaningless to the DOM, such as onScroll, onClick event callbacks
+     * React render completion is also considered a DOM Event, so it's also used in onRef
      */
     DomCallback = 'dom_callback',
 
     /**
-     * 一个项目应该只有一个 main 函数需要用 ENTRANCE 来标记 flaoting promise，如:
+     * A project should only have one main function that needs to use ENTRANCE to mark floating promises, like:
      * ```typescript
      * async function main() {
      *     ...
@@ -26,9 +26,9 @@ export enum Reason {
     Entrance = 'entrance',
 
     /**
-     * Deferred 意味着这个 Promise 是一个延迟执行的任务
-     * 创建 Deferred 的场合并不确定这个 Promise 是否会被使用
-     * 所以对于有可能被 Reject 的 Deferred，需要在创建时收集
+     * Deferred represents a Promise that is a delayed execution task
+     * When creating a Deferred, it's uncertain whether this Promise will be used
+     * So for Deferred that may be rejected, it needs to be collected at creation time
      */
     Deferred = 'deferred',
 }
